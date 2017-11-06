@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="res_config_settings_view_form" model="ir.ui.view">
+        <field name="name">res.config.settings.view.form.inherit.website.sale</field>
+        <field name="model">res.config.settings</field>
+        <field name="inherit_id" ref="website.res_config_settings_view_form"/>
+        <field name="arch" type="xml">
+              <div id="webmaster_settings" position="after">
+                <h2>Phone number Verification</h2>
+                <div class="row mt16 o_settings_container" id="numverify_settings">
+                    <div class="col-xs-12 col-md-6 o_setting_box" id="numverify_install_setting" title="Numverify Integration">
+                        <div class="o_setting_right_pane">
+                            <label for="id" string="API Numverify"/>
+                            <div class="text-muted" id="msg_numverify_install_setting">
+                               Add Your API Access Key
+                            </div>
+                            <div class="row">
+                                <label class="col-md-6 o_light_label" string="Access Key" for="access_key"/>
+                                <field name="access_key" class="oe_inline"/>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </field>
+    </record>
+</odoo>
