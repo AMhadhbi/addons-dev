@@ -15,8 +15,5 @@
         'website_sale',
     ],
     "application": True,
-    "installable": True,
-    "external_dependencies": {
-        "python": ["smartystreets"],
-    },
+    "installable": True
 }
