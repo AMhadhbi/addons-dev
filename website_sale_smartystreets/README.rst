@@ -23,7 +23,7 @@ To use this module, you need to authenticate with the Smarty Streets API :
 
 #. Add your API Access Key Website Admin > Configuration > Settings :
 
-.. image:: /website_sale_smartystreets/static/description/setting.PNG
+.. image:: /website_sale_smartystreets/static/description/settings.PNG
     :width: 100%
 
 Bug Tracker
