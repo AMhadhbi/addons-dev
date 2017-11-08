@@ -1,10 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
     
-    <template id="saas_users" inherit_id="website_sale.address">
-        <label class="control-label" for="phone" position="attributes">
-            <attribute name="style"></attribute>
-        </label>
-    </template>
+    
 
 </odoo>
