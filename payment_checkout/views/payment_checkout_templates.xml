@@ -21,6 +21,7 @@
             <input type='hidden' name='email' t-att-value='email'/>
             <input id="acquirer_checkout" type='hidden' name="acquirer" t-att-value="acquirer.id"/>
             <input type='hidden' name="checkout_key" t-att-value="acquirer.checkout_publishable_key"/>
+            <script type="text/javascript" src="/payment_checkout/static/src/js/checkout.js"></script>
         </template>
 
         <template id="checkout_s2s_form">
