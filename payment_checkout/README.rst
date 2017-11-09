@@ -20,13 +20,17 @@ To install this module, you need to install following module: payment_checkout
 Usage
 =====
 
-To use this module, you need to:
+To use this module, you need to authenticate with the numverify API :
 
-#. Go to the online shop in the frontend
-#. Buy something
-#. choose checkout.com
-#. Pay now
+#. Go to Website Admin > Configuration > Settings :
 
+.. image:: /payment_checkout/static/description/check_setting.PNG
+    :width: 100%
+
+#. Add your API Access Key :
+
+.. image:: /payment_checkout/static/description/check_config.PNG
+    :width: 100%
 
 Known issues / Roadmap
 ======================

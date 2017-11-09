@@ -1,13 +1,12 @@
 # -*- coding: utf-8 -*-
-# © 2017 Mhadhbi Achraf systems (<https://github.com/AMhadhbi>)
+# © 2017 Mhadhbi Achraf (<https://github.com/AMhadhbi>)
 # License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl.html).
 
 {
-    'name': 'Checkout Payment Acquirer',
+    'name': 'Checkout.com Payment Acquirer',
     'category': 'e-commerce',
     'summary': 'Payment Acquirer: Checkout.com Implementation',
     'version': '11.0.1.0.0',
-    'description': """Checkout Payment Acquirer""",
     'author': 'Mhadhbi Achraf',
     'website': 'https://github.com/AMhadhbi',
     'depends': ['payment'],
