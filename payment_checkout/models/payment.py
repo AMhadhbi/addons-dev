@@ -23,17 +23,11 @@ class PaymentAcquirerCheckout(models.Model):
              "brand or product. As defined in your Checkout profile. See: "
              "https://docs.checkout.com/")
     
-    
-    
     @api.multi
     def checkout_form_generate_values(self, tx_values):
         self.ensure_one()
         
         checkout_tx_values = dict(tx_values)
-        
-        tx_values.get('amount'),
-        tx_values.get('partner_email'),
-        _logger.info('checkout_form_generate_values email %s',tx_values.get('partner_email'))
         
         temp_checkout_tx_values = {
             'company': self.company_id.name,
@@ -80,18 +74,11 @@ class PaymentTransactionCheckout(models.Model):
     
     def _create_checkout_charge(self, post):
         
-        _logger.info("######################### _create_checkout_charge ")
-        
-        _logger.info("######################### _create_checkout_charge post %s",post)
-        
-        _logger.info("######################### post.get%s  ",post.get('email'))
         
         api_url_charge = 'https://%s/charges/token' % (self.acquirer_id._get_checkout_api_url())
         
         headers = {'content-type': 'application/json',
-           'Authorization': self.acquirer_id.checkout_secret_key}
-        
-        _logger.info("######################### headers %s ",headers)
+                   'Authorization': self.acquirer_id.checkout_secret_key}
         
         charge_params = {
           "autoCapTime": "0",
@@ -107,11 +94,8 @@ class PaymentTransactionCheckout(models.Model):
         response = requests.post(api_url_charge, data=json.dumps(charge_params), headers=headers)
         
         data=response.json()
-        _logger.info('checkout_create_charge data.json() %s',data)
+        
         data['metadata']['reference']=self.reference
-        
-        _logger.info('checkout_create_charge data 222 %s',data)
-        
         
         return data
 
@@ -121,16 +105,8 @@ class PaymentTransactionCheckout(models.Model):
         """ Given a data dict coming from Checkout, verify it and find the related
         transaction record. """
         
-        _logger.info("#######data %s",data)
-        medatada = data.get('metadata', {}).get('reference')
-        
-        _logger.info("######medatada %s",medatada)
-
         reference =data['metadata']['reference']
         
-        _logger.info("######reference %s",reference)
-        
-                
         if not reference:
             checkout_error = data.get('error', {}).get('message', '')
             _logger.error('Checkout: invalid reply received from Checkout API, looks like '
@@ -158,10 +134,6 @@ class PaymentTransactionCheckout(models.Model):
     @api.multi
     def _checkout_form_get_invalid_parameters(self, data):
         
-        _logger.info("######################### _checkout_form_get_invalid_parameters")
-        
-        _logger.info("######################### data %s",data)
-                     
         invalid_parameters = []
         reference = data['metadata']['reference']
         if reference != self.reference:
@@ -172,9 +144,6 @@ class PaymentTransactionCheckout(models.Model):
     @api.multi
     def _chechkout_form_validate(self,  data):
         
-        _logger.info("######################### _chechkout_form_validate")
-        _logger.info("######################### data %s" ,data)
-                
         return self._checkout_s2s_validate_tree(data)
 
     
@@ -183,15 +152,10 @@ class PaymentTransactionCheckout(models.Model):
     def _checkout_s2s_validate_tree(self, tree):
         self.ensure_one()
         
-        _logger.info("######################### _checkout_s2s_validate_tree")
-        
         if self.state not in ('draft', 'pending', 'refunding'):
             _logger.info('Checkout: trying to validate an already validated tx (ref %s)', self.reference)
             return True
         
-        
-        _logger.info("######################### tree %s" ,tree)
-         
         status = tree.get('status')
         if status == 'succeeded':
             new_state = 'refunded' if self.state == 'refunding' else 'done'

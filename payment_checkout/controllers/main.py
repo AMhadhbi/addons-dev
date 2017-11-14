@@ -1,13 +1,10 @@
 # -*- coding: utf-8 -*-
-import logging
-import pprint
-import werkzeug
 
+import logging
+import werkzeug
 from odoo import http
 from odoo.http import request
-import json
 _logger = logging.getLogger(__name__)
-import requests
 
 class CheckoutController(http.Controller):
 
@@ -21,14 +18,8 @@ class CheckoutController(http.Controller):
         TX = request.env['payment.transaction']
         tx = None
         
-        post.get('tx_ref')
-        
-        _logger.info('checkout_create_charge /payment/checkout/create_charge ')
-        
-        
-        _logger.info('checkout_create_charge tx_ref %s',post.get('tx_ref'))
         if post.get('tx_ref'):
-            tx = TX.sudo().search([('reference', '=', post.get('tx_ref') )])
+            tx = TX.sudo().search([('reference', '=', post.get('tx_ref'))])
         if not tx:
             tx_id = (post.get('tx_id') or request.session.get('sale_transaction_id') or
                      request.session.get('website_payment_tx_id'))
@@ -40,3 +31,4 @@ class CheckoutController(http.Controller):
         if response:
             request.env['payment.transaction'].sudo().form_feedback(response, 'checkout')
         return post.pop('return_url', '/')
+    
