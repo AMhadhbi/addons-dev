@@ -32,6 +32,32 @@ To use this module, you need to authenticate with the numverify API :
 .. image:: /payment_checkout/static/description/check_config.PNG
     :width: 100%
 
+
+
+#. Select Checkout.com  and click on Pay Now:
+
+
+.. image:: /payment_checkout/static/description/choose_checkout.PNG
+    :width: 100%
+
+
+
+#. the customer completes his cards details :
+
+
+.. image:: /payment_checkout/static/description/test_card.PNG
+    :width: 100%
+
+
+
+#. Once the customer completes and submits his payment details, if the card tokenisation is successful the Checkout.js payment lightbox will appear as follows :
+
+
+.. image:: /payment_checkout/static/description/test_card_valid.PNG
+    :width: 100%
+
+
+
 Known issues / Roadmap
 ======================
 
