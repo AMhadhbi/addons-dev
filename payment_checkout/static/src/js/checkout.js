@@ -9,9 +9,7 @@ odoo.define('payment_checkout.checkout', function(require) {
 
     if ($.blockUI) {
         // our message needs to appear above the modal dialog
-    	
     	console.log("blockUI",$.blockUI)
-        $.blockUI.defaults.baseZ = 2147483647; //same z-index as StripeCheckout
         $.blockUI.defaults.css.border = '0';
         $.blockUI.defaults.css["background-color"] = '';
         $.blockUI.defaults.overlayCSS["opacity"] = '0.9';
@@ -19,23 +17,38 @@ odoo.define('payment_checkout.checkout', function(require) {
     function getCheckoutHandler()
     {   
     	
-    	console.log("amount",$("input[name='amount']").val())
-    	console.log("currency",$("input[name='currency']").val())
-    	console.log("checkout_key",$("input[name='checkout_key']").val())
-    	console.log("email",$("input[name='email']").val())
-    	publicKey: $("input[name='amount']").val(),
+    	 // Charge with Card Token
+    	 // Send card details through Checkout.js.
     	Checkout.configure({
-            publicKey: $("input[name='checkout_key']").val(),
-            customerEmail:$("input[name='email']").val(),
-            value: $("input[name='amount']").val(),
-            currency: $("input[name='currency']").val(),
-            paymentMode: 'cards',
-            cardFormMode: 'cardTokenisation',
-            appMode:'lightbox',
-            renderMode: 5,
+            publicKey: $("input[name='checkout_key']").val(),// Your public key obtained from The Hub.
+            customerEmail:$("input[name='email']").val(), // Customer e-mail address.
+            value: $("input[name='amount']").val(),// Value of the charge. Must be a non-zero positive integer (i.e. decimal figures not allowed). 
+            currency: $("input[name='currency']").val(), //Transaction currency.
+            customerName:  $("input[name='customerName']").val(),
+	        paymentMode: 'cards',
+	        cardFormMode: 'cardTokenisation', // Set to Checkout.CardFormModes.CARD_TOKENISATION to charge with card token.
+	        appMode:'lightbox',
+	        renderMode: 5,
+	        title :$("input[name='name']").val(),
+	        subtitle : $("input[name='invoice_num']").val(),
+	        billingDetails: {
+                'addressLine1': $("input[name='address_line1']").val(),
+                'postcode': $("input[name='address_zip']").val(),
+                'city': $("input[name='address_city']").val(),
+                'phone': {'number': $("input[name='phone']").val()}
+                },
             cardTokenised: function(event) {
-                console.log(event.data.cardToken);
+                console.log(event.data.cardToken); // Return single-use card token.
                 console.log(event.data);
+                if ($.blockUI) {
+                    var msg = _t("Just one more second, confirming your payment...");
+                    $.blockUI({
+                        'message': '<h2 class="text-white"><img src="/web/static/src/img/spin.png" class="fa-pulse"/>' +
+                                '    <br />' + msg +
+                                '</h2>'
+                    });
+                }
+                // Send card token to merchant backend server
                 ajax.jsonRpc("/payment/checkout/create_charge", 'call', {
                 	cardToken:event.data.cardToken,
                 	value : $("input[name='amount']").val(),
@@ -62,7 +75,7 @@ odoo.define('payment_checkout.checkout', function(require) {
             },
         });
     	
-    	Checkout.open();
+    	Checkout.open();// to trigger the payment lightbox to open.
     
     }
 
@@ -96,17 +109,20 @@ odoo.define('payment_checkout.checkout', function(require) {
         if (! acquirer_id) {
             return false;
         }
+        
+        // access_token
         var access_token = $("input[name='access_token']").val() || $("input[name='token']").val();
+       
         var so_id = $("input[name='return_url']").val().match(/quote\/([0-9]+)/) || undefined;
         if (so_id) {
             so_id = parseInt(so_id[1]);
         }
-
+        
+        //
         var currency = $("input[name='currency']").val();
         var currency_id = $("input[name='currency_id']").val();
         var amount = parseFloat($("input[name='amount']").val() || '0.0');
         
-        console.log('#####invoice_num#######',$("input[name='invoice_num']").val())
         if ($('.o_website_payment').length !== 0) {
         	
             var create_tx = ajax.jsonRpc('/website_payment/transaction', 'call', {
@@ -117,7 +133,6 @@ odoo.define('payment_checkout.checkout', function(require) {
             });
         }
         else if ($('.o_website_quote').length !== 0) {
-        	console.log('#####o_website_quote#######')
             var url = _.str.sprintf("/quote/%s/transaction/", so_id);
             var create_tx = ajax.jsonRpc(url, 'call', {
                 access_token: access_token,
@@ -137,9 +152,10 @@ odoo.define('payment_checkout.checkout', function(require) {
         }
         create_tx.done(function () {
         	
-        	 getCheckoutHandler();
+        	 getCheckoutHandler(); // call method 
         });
     }
+    
     $.getScript("https://cdn.checkout.com/sandbox/js/checkout.js", function(data, textStatus, jqxhr) {
         observer.observe(document.body, {childList: true});
         display_checkout_form($('form[provider="checkout"]'));

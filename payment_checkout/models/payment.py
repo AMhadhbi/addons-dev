@@ -37,9 +37,10 @@ class PaymentAcquirerCheckout(models.Model):
             'address_line1': tx_values.get('partner_address'),
             'address_city': tx_values.get('partner_city'),
             'address_country': tx_values.get('partner_country') and tx_values['partner_country'].name or '',
+            'countryCode': tx_values.get('partner_country') and tx_values['partner_country'].code or '',
             'email': tx_values.get('partner_email'),
             'address_zip': tx_values.get('partner_zip'),
-            'name': tx_values.get('partner_name'),
+            'customerName': tx_values.get('partner_name'),
             'phone': tx_values.get('partner_phone'),
 
         }
@@ -86,11 +87,11 @@ class PaymentTransactionCheckout(models.Model):
           "chargeMode": 1,
           "email": post.get('email'),
           "description": self.reference,
-          "value": float(post.get('value')),
+          "value": int(self.amount),
           "currency":post.get('currency'),
           "cardToken":  post.get('cardToken'),
           }
-
+        
         response = requests.post(api_url_charge, data=json.dumps(charge_params), headers=headers)
         
         data=response.json()
@@ -128,6 +129,7 @@ class PaymentTransactionCheckout(models.Model):
             error_msg = (_('Checkout: %s orders found for reference %s') % (len(tx), reference))
             _logger.error(error_msg)
             raise ValidationError(error_msg)
+        
         return tx[0]
     
     
@@ -138,26 +140,25 @@ class PaymentTransactionCheckout(models.Model):
         reference = data['metadata']['reference']
         if reference != self.reference:
             invalid_parameters.append(('Reference', reference, self.reference))
+            
         return invalid_parameters
     
     
     @api.multi
-    def _chechkout_form_validate(self,  data):
+    def _checkout_form_validate(self,  data):
         
         return self._checkout_s2s_validate_tree(data)
 
     
-    
     @api.multi
     def _checkout_s2s_validate_tree(self, tree):
         self.ensure_one()
-        
+                
         if self.state not in ('draft', 'pending', 'refunding'):
-            _logger.info('Checkout: trying to validate an already validated tx (ref %s)', self.reference)
             return True
         
         status = tree.get('status')
-        if status == 'succeeded':
+        if status == 'Authorised':
             new_state = 'refunded' if self.state == 'refunding' else 'done'
             self.write({
                 'state': new_state,
@@ -169,7 +170,7 @@ class PaymentTransactionCheckout(models.Model):
                 self.payment_token_id.verified = True
             return True
         else:
-            error = tree['error']['message']
+            error = tree.get('message')
             _logger.warn(error)
             self.sudo().write({
                 'state': 'error',
