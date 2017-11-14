@@ -27,18 +27,20 @@ To use this module, you need to authenticate with the numverify API :
 .. image:: /payment_checkout/static/description/check_setting.PNG
     :width: 100%
 
+	
 #. Add your API Access Key :
 
+
 .. image:: /payment_checkout/static/description/check_config.PNG
-    :width: 100%
+    :width: 60%
 
 
 
-#. Select Checkout.com  and click on Pay Now:
+#. Select Checkout.com Payment Method and click on Pay Now :  
 
 
 .. image:: /payment_checkout/static/description/choose_checkout.PNG
-    :width: 100%
+    :width: 60%
 
 
 
@@ -46,7 +48,7 @@ To use this module, you need to authenticate with the numverify API :
 
 
 .. image:: /payment_checkout/static/description/test_card.PNG
-    :width: 100%
+    :width: 60%
 
 
 
@@ -54,10 +56,20 @@ To use this module, you need to authenticate with the numverify API :
 
 
 .. image:: /payment_checkout/static/description/test_card_valid.PNG
-    :width: 100%
+    :width: 60%
 
 
+#. Order Confirmation  : 
 
+.. image:: /payment_checkout/static/description/order_valid.PNG
+    :width: 60%
+	
+#. ODOO Admin Panel : Sales Orders and Transatcion details 
+	
+.. image:: /payment_checkout/static/description/sale_order_transaction.PNG
+    :width: 60%
+	
+	
 Known issues / Roadmap
 ======================
 
