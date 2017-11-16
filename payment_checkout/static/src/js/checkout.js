@@ -7,6 +7,15 @@ odoo.define('payment_checkout.checkout', function(require) {
     var qweb = core.qweb;
     ajax.loadXML('/payment_checkout/static/src/xml/checkout_templates.xml', qweb);
 
+    var full_value = [
+        'BYR', 'BIF', 'DJF', 'GNF', 'KMF', 'XAF', 'CLF', 'XPF', 'JPY', 'PYG', 'RWF', 'KRW',
+        'VUV', 'VND', 'XOF'
+    ];
+    
+    var divid_1000_value = [
+        'BHD', 'LYD', 'JOD', 'KWD', 'OMR', 'TND'
+    ];
+
     if ($.blockUI) {
         // our message needs to appear above the modal dialog
     	console.log("blockUI",$.blockUI)
@@ -14,15 +23,33 @@ odoo.define('payment_checkout.checkout', function(require) {
         $.blockUI.defaults.css["background-color"] = '';
         $.blockUI.defaults.overlayCSS["opacity"] = '0.9';
     }
+
     function getCheckoutHandler()
     {   
     	
     	 // Charge with Card Token
     	 // Send card details through Checkout.js.
+    	
+        var amount = $("input[name='amount']").val();
+        var currency = $("input[name='currency']").val();
+    	console.log('#####create_tx####### create_tx.done')
+        if (_.contains(full_value, currency)) {
+            amount = amount;
+        }
+    	
+        if (_.contains(divid_1000_value, currency)) {
+            amount = amount * 1000;
+        }
+        
+        if (!_.contains(full_value, currency)) {
+            amount = amount * 100;
+        }
+        
+    	console.log('#####getCheckoutHandler####### amount',amount)
     	Checkout.configure({
             publicKey: $("input[name='checkout_key']").val(),// Your public key obtained from The Hub.
             customerEmail:$("input[name='email']").val(), // Customer e-mail address.
-            value: $("input[name='amount']").val(),// Value of the charge. Must be a non-zero positive integer (i.e. decimal figures not allowed). 
+            value: amount,// Value of the charge. Must be a non-zero positive integer (i.e. decimal figures not allowed). 
             currency: $("input[name='currency']").val(), //Transaction currency.
             customerName:  $("input[name='customerName']").val(),
 	        paymentMode: 'cards',

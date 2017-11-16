@@ -5,11 +5,20 @@ import requests
 import json
 from odoo import api, fields, models, _
 from odoo.addons.payment.models.payment_acquirer import ValidationError
-from odoo.exceptions import UserError
-from odoo.tools.safe_eval import safe_eval
 
 _logger = logging.getLogger(__name__)
 
+# The value field in a charge request must be a non-zero positive integer (i.e. decimal figures are not allowed)
+# see https://docs.checkout.com/reference/merchant-api-reference/charges/calculating-charge-amount
+
+full_value = [
+    u'BYR', u'BIF', u'DJF', u'GNF', u'KMF', u'XAF', u'CLF', u'XPF', u'JPY', u'PYG', u'RWF', u'KRW',
+    u'VUV', u'VND', u'XOF'
+]
+
+divid_1000_value = [
+    u'BHD', u'LYD', u'JOD', u'KWD', u'OMR', u'TND'
+]
 
 class PaymentAcquirerCheckout(models.Model):
     _inherit = 'payment.acquirer'
@@ -17,11 +26,6 @@ class PaymentAcquirerCheckout(models.Model):
     provider = fields.Selection(selection_add=[('checkout', 'Checkout.com')])
     checkout_secret_key = fields.Char(required_if_provider='checkout', groups='base.group_user')
     checkout_publishable_key = fields.Char(required_if_provider='checkout', groups='base.group_user')
-    checkout_image_url = fields.Char(
-        "Checkout Image URL", groups='base.group_user',
-        help="A relative or absolute URL pointing to a square image of your "
-             "brand or product. As defined in your Checkout profile. See: "
-             "https://docs.checkout.com/")
     
     @api.multi
     def checkout_form_generate_values(self, tx_values):
@@ -75,19 +79,32 @@ class PaymentTransactionCheckout(models.Model):
     
     def _create_checkout_charge(self, post):
         
+        _logger.info("################_create_checkout_charge")
         
         api_url_charge = 'https://%s/charges/token' % (self.acquirer_id._get_checkout_api_url())
         
         headers = {'content-type': 'application/json',
                    'Authorization': self.acquirer_id.checkout_secret_key}
         
+        value=0
+        
+        if self.currency_id.name in full_value :
+                value=self.amount
+        elif self.currency_id.name in divid_1000_value :
+                value=self.amount * 1000
+        elif self.currency_id.name not in full_value  and divid_1000_value:
+                value=self.amount * 100
+        
+        
+        _logger.info("value" ,value)
+
         charge_params = {
           "autoCapTime": "0",
           "autoCapture": "Y",
           "chargeMode": 1,
           "email": post.get('email'),
           "description": self.reference,
-          "value": int(self.amount),
+          "value": value,
           "currency":post.get('currency'),
           "cardToken":  post.get('cardToken'),
           }
@@ -95,6 +112,8 @@ class PaymentTransactionCheckout(models.Model):
         response = requests.post(api_url_charge, data=json.dumps(charge_params), headers=headers)
         
         data=response.json()
+        
+        _logger.info("data[]value" ,data['value'])
         
         data['metadata']['reference']=self.reference
         
