@@ -26,6 +26,12 @@ class PaymentAcquirerCheckout(models.Model):
     provider = fields.Selection(selection_add=[('checkout', 'Checkout.com')])
     checkout_secret_key = fields.Char(required_if_provider='checkout', groups='base.group_user')
     checkout_publishable_key = fields.Char(required_if_provider='checkout', groups='base.group_user')
+    checkout_image_url = fields.Char(
+        "Checkout Image URL", groups='base.group_user',
+        help="A relative or absolute URL pointing to a square image of your "
+             "brand or product. As defined in your Checkout profile. See: "
+             "https://docs.checkout.com")
+
     
     @api.multi
     def checkout_form_generate_values(self, tx_values):
@@ -95,9 +101,6 @@ class PaymentTransactionCheckout(models.Model):
         elif self.currency_id.name not in full_value  and divid_1000_value:
                 value=self.amount * 100
         
-        
-        _logger.info("value" ,value)
-
         charge_params = {
           "autoCapTime": "0",
           "autoCapture": "Y",
@@ -113,9 +116,22 @@ class PaymentTransactionCheckout(models.Model):
         
         data=response.json()
         
-        _logger.info("data[]value" ,data['value'])
+        if data.get('errors'):
+            
+            checkout_error = data.get('errors')
+            _logger.error('Checkout: invalid reply received from Checkout API, looks like '
+                          'the transaction failed. (error: %s)', checkout_error  or 'n/a')
+            error_msg = _("We're sorry to report that the transaction has failed.")
+            if checkout_error:
+                error_msg += " " + (_("Checkout gave us the following info about the problem: '%s'") %
+                                    checkout_error)
+            error_msg += " " + _("Perhaps the problem can be solved by double-checking your "
+                                 "credit card details, or contacting your bank?")
+            raise ValidationError(error_msg)
         
-        data['metadata']['reference']=self.reference
+        else :
+            
+            data['metadata']['reference']=self.reference
         
         return data
 
