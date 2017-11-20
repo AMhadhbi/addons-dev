@@ -20,8 +20,6 @@ To install this module, you need to install following module: payment_checkout
 Usage
 =====
 
-To use this module, you need to authenticate with the numverify API :
-
 #. Go to Website Admin > Configuration > Settings :
 
 .. image:: /payment_checkout/static/description/check_setting.PNG
@@ -55,8 +53,8 @@ To use this module, you need to authenticate with the numverify API :
 #. Once the customer completes and submits his payment details, if the card tokenisation is successful the Checkout.js payment lightbox will appear as follows :
 
 
-.. image:: /payment_checkout/static/description/test_card_valid.PNG
-    :width: 60%
+.. image:: /payment_checkout/static/description/card_valid.PNG
+    :width: 25%
 
 
 #. Order Confirmation  : 
@@ -80,7 +78,7 @@ Bug Tracker
 ===========
 
 Bugs are tracked on `GitHub Issues
-<https://github.com/AMhadhbi/addons-dev/payment_checkout/issues>`_. In case of trouble, please
+<https://github.com/AMhadhbi/addons-dev/issues>`_. In case of trouble, please
 check there if your issue has already been reported. If you spotted it first,
 help us smash it by providing detailed and welcomed feedback.
 

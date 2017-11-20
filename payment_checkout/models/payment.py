@@ -84,9 +84,9 @@ class PaymentTransactionCheckout(models.Model):
     
     
     def _create_checkout_charge(self, post):
-        
-        _logger.info("################_create_checkout_charge")
-        
+        """"
+        Charge with Card Token
+        """
         api_url_charge = 'https://%s/charges/token' % (self.acquirer_id._get_checkout_api_url())
         
         headers = {'content-type': 'application/json',
@@ -106,6 +106,7 @@ class PaymentTransactionCheckout(models.Model):
           "autoCapture": "Y",
           "chargeMode": 1,
           "email": post.get('email'),
+          "trackId":self.reference,
           "description": self.reference,
           "value": value,
           "currency":post.get('currency'),
@@ -116,6 +117,12 @@ class PaymentTransactionCheckout(models.Model):
         
         data=response.json()
         
+        if data.get('errorCode'):
+            # Token already used
+            
+            self._create_checkout_card_charge(data)
+            
+            
         if data.get('errors'):
             
             checkout_error = data.get('errors')
@@ -132,9 +139,36 @@ class PaymentTransactionCheckout(models.Model):
         else :
             
             data['metadata']['reference']=self.reference
-        
+            
         return data
 
+
+    def _create_checkout_card_charge(self, data):
+        """"
+        Charge with Card ID when we received error message
+        """
+        
+        api_url_charge = 'https://%s/charges/card' % (self.acquirer_id._get_checkout_api_url())
+
+        headers = {'content-type': 'application/json',
+                   'Authorization': self.acquirer_id.checkout_secret_key}
+
+        charge_params = {
+                  "autoCapTime": "0",
+                  "autoCapture": "Y",
+                  "chargeMode": 1,
+                  "email": self.partner_id.email,
+                  "value": int(self.amount),
+                  "currency": self.currency_id.name,
+                  "trackId":self.reference,
+                  "cardId":  data.get('card', {}).get('id', ''),
+                  }
+            
+        response = requests.post(api_url_charge, data=json.dumps(charge_params), headers=headers)
+            
+        data=response.json()
+        
+        return data
 
     @api.model
     def _checkout_form_get_tx_from_data(self, data):
@@ -177,8 +211,25 @@ class PaymentTransactionCheckout(models.Model):
             invalid_parameters.append(('Reference', reference, self.reference))
             
         return invalid_parameters
-    
-    
+
+
+    @api.multi
+    def checkout_s2s_do_refund(self, data):
+        self.ensure_one()
+        
+        api_url_refund = 'https://sandbox.checkout.com/api2/v2/charges/%s/refunds' % (data.get('id'))  
+
+        headers = {'content-type': 'application/json',
+                   'Authorization': self.acquirer_id.checkout_secret_key}
+        
+        
+        response = requests.post(api_url_refund, headers=headers)
+        
+        data=response.json()
+
+        return data
+
+
     @api.multi
     def _checkout_form_validate(self,  data):
         
@@ -188,7 +239,10 @@ class PaymentTransactionCheckout(models.Model):
     @api.multi
     def _checkout_s2s_validate_tree(self, tree):
         self.ensure_one()
-                
+
+        if self.state =='refunding' :
+            self.checkout_s2s_do_refund(tree)
+                    
         if self.state not in ('draft', 'pending', 'refunding'):
             return True
         
