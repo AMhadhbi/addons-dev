@@ -6,24 +6,11 @@
 Website sale numverify API Integration
 ======================================
 
-Description
-===========
-
-This module will enable you to verify the validity of phone numbers at checkout form.
-
-.. image:: /website_sale_numverify/static/description/checkout_form.PNG
-    :width: 100%
-
-It also keeps your customer on the checkout page while adding or editing a phone number:
-
-.. image:: /website_sale_numverify/static/description/invalid_phone.PNG
-    :width: 100%
-
-
 Installation
 ============
 
 To install this module, you need to install following module: website_sale_numverify
+
 
 Usage
 =====
@@ -34,6 +21,21 @@ To use this module, you need to authenticate with the numverify API :
 
 .. image:: /website_sale_numverify/static/description/setting.PNG
     :width: 100%
+
+
+Description
+===========
+
+This module will enable you to verify the validity of phone numbers at checkout form.
+
+.. image:: /website_sale_numverify/static/description/checkout_form.PNG
+    :width: 100%
+
+If Invalid Phone number, the message errot will be appear until the number will be valid.
+
+.. image:: /website_sale_numverify/static/description/invalid_phone.PNG
+    :width: 100%
+
 
 Known issues / Roadmap
 ======================
@@ -54,4 +56,4 @@ Credits
 Contributors
 ------------
 
-* Mhadhbi Achraf <mhadhbi.achraf@gmail.com>
+* Mhadhbi Achraf <mhadhbi.achref@gmail.com>
