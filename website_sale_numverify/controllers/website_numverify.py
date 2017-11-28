@@ -5,7 +5,6 @@ from odoo.http import request, route
 from odoo import _
 import requests
 
-
 class WebsiteNumverify(WebsiteSale):
 
     def _get_country(self,data):
@@ -33,6 +32,7 @@ class WebsiteNumverify(WebsiteSale):
             if not data.get('phone'):
                 
                 res[0]["phone"] = 'missing'
+                res[1].append(_('Phone fields are empty.'))
             
             if data.get('phone'):
                        
@@ -47,7 +47,9 @@ class WebsiteNumverify(WebsiteSale):
                 answer = r['valid']
                 
                 if answer == False:
-                
+                    
                     res[0]["phone"] = 'error'
-            
+                    
+                    res[1].append(_('Invalid Phone! Please enter a phone Number.'))
+                    
         return res
