@@ -1,0 +1,72 @@
+<odoo>
+
+  <record model="ir.ui.view" id="view_website_sale_info_tree">
+    <field name="name">website.sale.info.tree</field>
+    <field name="model">website.sale.info</field>
+    <field name="arch" type="xml">
+      <tree string="Info Panel">
+        <field name="title"/>
+        <field name="type"/>
+      </tree>
+    </field>
+  </record>
+
+  <record model="ir.ui.view" id="view_website_sale_info_form">
+    <field name="name">website.sale.info.form</field>
+    <field name="model">website.sale.info</field>
+    <field name="arch" type="xml">
+      <form string="Info Panel">
+        <sheet>
+          <div class="oe_title" name="title">
+            <label for="title" string="Title" class="oe_edit_only"/>
+            <h1>
+              <field name="title" placeholder="e.g. UPS Express"/>
+            </h1>
+          </div>
+          <group>
+            <field name="info"/>
+          </group>
+          <group>
+            <group>
+              <field name="website_id" attrs="{'required' : True}"/>
+              <field name="type"/>
+              <field name="delivery_id"
+                     widget='selection'
+                     attrs="{'invisible': [('type', '!=', 'delivery')],
+                             'required': [('type', '=', 'delivery')]}"/>
+              <field name="payment_id"
+                     widget='selection'
+                     attrs="{'invisible': [('type', '!=', 'payment')],
+                             'required': [('type', '=', 'payment')]}"/>
+            </group>
+          </group>
+        </sheet>
+      </form>
+    </field>
+  </record>
+
+  <record model="ir.actions.act_window" id="website_sale_info_action">
+    <field name="name">Website Sale Info</field>
+    <field name="type">ir.actions.act_window</field>
+    <field name="res_model">website.sale.info</field>
+    <field name="view_type">form</field>
+    <field name="view_mode">tree,form</field>
+    <field name="help" type="html">
+      <p class="oe_view_nocontent_create">
+        Click to create a new website sale info.
+      </p>
+      <p>
+        Website sale infos can be accessed by icons displayed
+        after each payment or delivery in the checkout page.
+      </p>
+    </field>
+  </record>
+
+
+  <menuitem
+      name="Website Sale Info"
+      id="website_sale_info_action_menu"
+      parent="website_sale.menu_ecommerce_settings"
+      action="website_sale_info_action"/>
+
+</odoo>

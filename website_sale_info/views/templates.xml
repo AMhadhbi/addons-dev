@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+	<template id="assets_frontend" inherit_id="website.assets_frontend">
+		<xpath expr="." position="inside">
+			<script type="text/javascript" src="/website_sale_info/static/src/js/sale_info.js" />
+		</xpath>
+	</template>
+
+	<template id="payment_delivery" name="Delivery Info"
+		inherit_id="website_sale_delivery.payment_delivery">
+
+		<xpath expr="//li[@t-foreach='deliveries']" position="replace">
+			<li t-foreach="deliveries" t-as="delivery">
+				<t t-if="delivery.available">
+					<label>
+						<input t-att-value="delivery.id" type="radio" name="delivery_type"
+							t-att-checked="order.carrier_id and order.carrier_id.id == delivery.id and 'checked' or False" />
+						<abbr t-att-title="delivery.website_description">
+							<span t-field="delivery.name" />
+						</abbr>
+						<span class="badge" t-field="delivery.price"
+							t-options='{
+                                            "widget": "monetary",
+                                            "from_currency": delivery.product_id.company_id.currency_id,
+                                            "display_currency": website_sale_order.currency_id
+                                        }' />
+						<t t-foreach="website.info_line" t-as="line">
+							<t t-if='line.type =="delivery" and line.delivery_id.id ==delivery.id'>
+								<span class="fa fa-info-circle " />
+								
+								<!--
+									Modal for Sale Info <div class="modal fade" id="line.id"
+									tabindex="-1" role="dialog" aria-hidden="true"> <div
+									class="modal-dialog"> <div class="modal-content"> <div
+									class="modal-header"> <button type="button" class="close"
+									data-dismiss="modal" aria-hidden="true"> </button> <h4
+									class="modal-title"> <span t-field="line.title"></span> </h4>
+									</div> <div class="modal-body"> <span
+									t-field="line.info"></span> </div> <div class="modal-footer">
+									</div> </div> </div> </div>
+								-->
+								
+							</t>
+						</t>
+						<div t-field="delivery.website_description" class="text-muted" />
+					</label>
+				</t>
+			</li>
+		</xpath>
+	</template>
+
+
+	<template id="payment" name="Payment Info"
+		inherit_id="website_sale_delivery.payment_delivery">
+		<xpath expr="//t[@t-foreach='acquirers or []']" position="replace">
+			<t t-foreach="acquirers or []" t-as="acquirer">
+				<li>
+					<label t-if="acquirer.button">
+						<input t-att-value="acquirer.id" type="radio" name="acquirer"
+							t-att-checked="acquirers[0] == acquirer" />
+						<span t-field="acquirer.image_small" t-att-title="acquirer.name"
+							t-field-options='{"widget": "image", "style":"max-width: 60px; display: inline-block"}' />
+						<span t-field="acquirer.name" />
+						<span t-if="acquirer.fees_active">(processing fees apply)</span>
+						<t t-foreach="website.info_line" t-as="line">
+							<t t-if='line.type =="payment" and line.payment_id.id ==acquirer.id'>
+								<span class="fa fa-info-circle" />
+							</t>
+						</t>
+					</label>
+				</li>
+			</t>
+		</xpath>
+	</template>
+
+</odoo>
